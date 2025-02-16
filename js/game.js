@@ -17,6 +17,25 @@
             currentEvent: 1
         };
 
+        // 在选项按钮中调用
+{ text: "开始修炼", action: startCultivation }
+
+        // 示例任务接取
+function acceptMission(missionName) {
+    const mission = sectSystem.missions[missionName];
+    if(checkRequirements(mission.require)) {
+        gameState.quests.active.push(missionName);
+    }
+}
+
+        
+
+// 任务完成处理
+function completeMission(missionName) {
+    const reward = sectSystem.missions[missionName].reward;
+    applyEffects(reward);
+}
+
         // 扩展事件树
         const eventTree = {
             1: {
@@ -80,6 +99,21 @@
                 ]
             }
         };
+
+        const specialEvents = {
+    "天劫": {
+        trigger: (cultivationLevel) => cultivationLevel >= 5,
+        stages: [
+            { damage: 30, description: "第一道雷劫劈下！" },
+            { damage: 50, description: "心魔劫降临..." }
+        ]
+    },
+    "秘境探索": {
+        require: { item: "秘境地图" },
+        stages: 3,
+        rewardLevels: ["普通", "稀有", "传说"]
+    }
+};
 
         // 增强事件处理逻辑
         function handleChoice(nextEvent) {
@@ -315,6 +349,10 @@ function showPopupEvent(event) {
 
 // 添加自动保存事件
 window.addEventListener('beforeunload', saveGame);
+// 每5分钟自动保存
+setInterval(() => {
+    localStorage.setItem('autoSave', JSON.stringify(gameState));
+}, 300000);
 </script>
 
         // 初始化游戏
