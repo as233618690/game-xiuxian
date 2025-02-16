@@ -1,1 +1,123 @@
+/* 根变量定义 */
+:root {
+    --bg-color: #2c1f1a;       /* 背景主色调 */
+    --text-color: #e4d5c3;     /* 文字基础色 */
+    --border-color: #66544a;   /* 边框统一色 */
+    --special-color: #c17d3e;  /* 强调色 */
+}
 
+/* 基础页面样式 */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: '楷体', cursive;  /* 中文字体设置 */
+    max-width: 800px;
+    margin: 0 auto;            /* 页面居中 */
+    padding: 20px;
+}
+
+/* 游戏主容器 */
+.game-container {
+    border: 2px solid var(--border-color);
+    padding: 20px;
+    background: linear-gradient(to bottom right, 
+        rgba(0,0,0,0.3), 
+        rgba(50,30,20,0.5));  /* 渐变背景 */
+    min-height: 500px;        /* 最小高度 */
+}
+
+/* 状态面板布局 */
+.status-panel {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);  /* 三列布局 */
+    gap: 10px;                /* 元素间距 */
+    padding: 10px;
+    border-bottom: 1px dashed var(--border-color); /* 底部虚线分隔 */
+}
+
+/* 主内容区域 */
+.main-content {
+    margin: 20px 0;
+    line-height: 1.8;         /* 行高设置 */
+}
+
+/* 选项按钮容器 */
+.choices {
+    border-top: 1px solid var(--border-color);
+    padding-top: 15px;        /* 顶部留白 */
+}
+
+/* 按钮基础样式 */
+button {
+    background: rgba(80, 60, 50, 0.8);  /* 半透明背景 */
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 8px 15px;
+    margin: 5px;
+    cursor: pointer;          /* 鼠标手势 */
+    transition: all 0.3s;     /* 过渡动画 */
+}
+
+/* 按钮悬停效果 */
+button:hover {
+    background: var(--special-color);
+    color: #2c1f1a;           /* 文字反色 */
+}
+
+/* 业力进度条容器 */
+.karma-bar {
+    height: 10px;
+    background: #333;         /* 背景深色 */
+    margin: 5px 0;
+}
+
+/* 业力填充效果 */
+.karma-fill {
+    height: 100%;
+    background: linear-gradient(to right, 
+        #804d33, 
+        #c17d3e);            /* 渐变进度条 */
+    width: 50%;               /* 初始宽度 */
+}
+
+/* 新增属性面板样式 */
+.attribute-panel {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 五列布局 */
+    gap: 5px;                 /* 紧凑间距 */
+    margin: 10px 0;
+}
+
+.attribute-item {
+    padding: 5px;
+    border: 1px solid var(--border-color);
+    text-align: center;       /* 居中显示 */
+}
+
+/* 新增动画效果 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.event-text {
+    animation: fadeIn 0.5s ease-in; /* 文字渐现动画 */
+}
+
+@media (max-width: 600px) {
+    .status-panel {
+        grid-template-columns: 1fr; /* 手机端单列布局 */
+    }
+    .attribute-panel {
+        grid-template-columns: repeat(3, 1fr); /* 3列布局 */
+    }
+}
+
+.karma-fill {
+    transition: width 0.5s ease-out; /* 进度条动态变化 */
+}
+
+:root {
+    --bg-color: #1a2c28;        /* 深青色调 */
+    --special-color: #3ec189;   /* 青绿色强调 */
+}
