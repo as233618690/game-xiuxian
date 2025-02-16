@@ -132,6 +132,177 @@
         }
 
 
+
+        // 扩展游戏状态
+let gameState = {
+    // ...原有状态...
+    cultivationStage: {
+        current: 1,
+        stages: [
+            { name: "炼气初期", require: 100 },
+            { name: "炼气中期", require: 300 },
+            { name: "炼气后期", require: 800 }
+        ]
+    },
+    quests: {
+        active: [],
+        completed: []
+    }
+};
+
+// 新增修炼系统
+function startCultivation() {
+    const interval = setInterval(() => {
+        if(gameState.attributes.mana < 10) {
+            alert("灵力不足！");
+            clearInterval(interval);
+            return;
+        }
+        
+        gameState.attributes.mana -= 5;
+        gameState.cultivationStage.currentProgress += 10;
+        
+        updateStatus();
+        
+        if(gameState.cultivationStage.currentProgress >= 
+           gameState.cultivationStage.stages[gameState.cultivationStage.current].require) {
+            advanceStage();
+            clearInterval(interval);
+        }
+    }, 1000);
+}
+
+function advanceStage() {
+    gameState.cultivationStage.current++;
+    gameState.cultivationStage.currentProgress = 0;
+    triggerEvent({
+        type: "突破",
+        message: `成功突破至${getCurrentStage().name}！`,
+        effect: {
+            attributes: {
+                mana: +50,
+                perception: +2
+            }
+        }
+    });
+}
+
+// 新增奇遇事件系统
+const randomEvents = {
+    1: {
+        trigger: () => Math.random() < gameState.attributes.luck / 100,
+        message: "【山间奇遇】发现一株散发灵光的草药",
+        choices: [
+            { text: "采摘（神识≥6）", effect: { inventory: ["灵草×1"] }, check: "perception" },
+            { text: "观察后再取", effect: { luck: +1 } },
+            { text: "置之不理" }
+        ]
+    },
+    2: {
+        trigger: () => gameState.relationships["青云门"] > 60,
+        message: "【宗门传讯】收到门派大比邀请函",
+        choices: [
+            { text: "参加比试", next: "sect_tournament" },
+            { text: "婉拒邀请", effect: { relationships: { "青云门": -10 } }
+        ]
+    }
+};
+
+// 新增轮回系统
+const reincarnationSystem = {
+    karmaThresholds: {
+        good: 70,
+        neutral: 30,
+        evil: 0
+    },
+    getNextLifeBonus() {
+        if(gameState.karma >= this.karmaThresholds.good) {
+            return { attributes: { luck: +3 }, items: ["功德玉佩"] };
+        } else if(gameState.karma >= this.karmaThresholds.neutral) {
+            return { attributes: { perception: +1 } };
+        } else {
+            return { attributes: { physique: -1 }, curses: ["业火缠身"] };
+        }
+    }
+};
+
+// 在事件树中新增更多分支
+const eventTree = {
+    // ...原有事件...
+    303: {
+        text: "【逆天而行】强行留在灵气潮中修炼",
+        effect: {
+            mana: +200,
+            lifespan: -20,
+            karma: -15
+        },
+        choices: [
+            { text: "继续吸收灵气", next: 304 },
+            { text: "见好就收", next: 305 }
+        ]
+    },
+    304: {
+        text: "【灵气暴走】经脉承受不住狂暴的灵气...",
+        effect: {
+            health: -50,
+            cultivation: "境界跌落"
+        },
+        choices: [
+            { text: "运功调息", next: 306, check: { attr: "physique", min: 5 } },
+            { text: "服用丹药", cost: { item: "回春丹" } }
+        ]
+    }
+};
+
+// 新增宗门系统
+const sectSystem = {
+    missions: {
+        "采集灵草": {
+            require: { level: "炼气初期" },
+            reward: { contribution: 50, items: ["下品灵石×5"] }
+        },
+        "剿灭妖兽": {
+            require: { level: "炼气中期" },
+            reward: { contribution: 100, karma: +5 }
+        }
+    },
+    exchange: {
+        "功法阁": {
+            "基础剑诀": { cost: 100, effect: { attack: +5 } },
+            "炼丹入门": { cost: 200, effect: { alchemy: true } }
+        }
+    }
+};
+
+// 在renderGame函数中添加奇遇触发
+function renderGame(eventId) {
+    // ...原有逻辑...
+    
+    // 20%概率触发随机事件
+    if(Math.random() < 0.2) {
+        const event = getRandomEvent();
+        showPopupEvent(event);
+    }
+}
+
+function showPopupEvent(event) {
+    const popup = document.createElement('div');
+    popup.className = 'event-popup';
+    popup.innerHTML = `
+        <h4>${event.message}</h4>
+        <div class="event-choices">
+            ${event.choices.map((c, i) => `
+                <button onclick="handlePopupChoice(${i})">
+                    ${c.text}
+                </button>
+            `).join('')}
+        </div>
+    `;
+    document.body.appendChild(popup);
+}
+
+        
+
         // 在game.js中添加存档功能
         function saveGame() {
             localStorage.setItem('cultivationSave', JSON.stringify(gameState));
