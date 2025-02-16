@@ -131,20 +131,23 @@
             document.querySelector('.karma-fill').style.width = `${gameState.karma}%`;
         }
 
-        // 初始化游戏
-        renderGame(1);
-        updateStatus();
-    
-// 在game.js中添加存档功能
-function saveGame() {
-    localStorage.setItem('cultivationSave', JSON.stringify(gameState));
-}
 
-function loadGame() {
-    const save = localStorage.getItem('cultivationSave');
-    if(save) gameState = JSON.parse(save);
-}
+        // 在game.js中添加存档功能
+        function saveGame() {
+            localStorage.setItem('cultivationSave', JSON.stringify(gameState));
+        }
+
+        function loadGame() {
+            const save = localStorage.getItem('cultivationSave');
+            if(save) gameState = JSON.parse(save);
+        }
 
 // 添加自动保存事件
 window.addEventListener('beforeunload', saveGame);
 </script>
+
+        // 初始化游戏
+        renderGame(1);
+        updateStatus();
+    
+
