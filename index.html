@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>六道轮回录</title>
+    <style>
+        :root {
+            --bg-color: #2c1f1a;
+            --text-color: #e4d5c3;
+            --border-color: #66544a;
+            --special-color: #c17d3e;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: '楷体', cursive;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .game-container {
+            border: 2px solid var(--border-color);
+            padding: 20px;
+            background: linear-gradient(to bottom right, 
+                rgba(0,0,0,0.3), 
+                rgba(50,30,20,0.5));
+            min-height: 500px;
+        }
+
+        .status-panel {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .main-content {
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+
+        .choices {
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        button {
+            background: rgba(80, 60, 50, 0.8);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: var(--special-color);
+            color: #2c1f1a;
+        }
+
+        .karma-bar {
+            height: 10px;
+            background: #333;
+            margin: 5px 0;
+        }
+
+        .karma-fill {
+            height: 100%;
+            background: linear-gradient(to right, 
+                #804d33, 
+                #c17d3e);
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="status-panel">
+            <div>
+                <h3>因果线</h3>
+                <div class="karma-bar">
+                    <div class="karma-fill"></div>
+                </div>
+            </div>
+            <div>
+                <h3>境界</h3>
+                <p>炼气初期</p>
+            </div>
+            <div>
+                <h3>势力关系</h3>
+                <p>青云门（中立）</p>
+            </div>
+        </div>
+
+        <div class="main-content" id="game-text">
+            <p>【时空锚定】乙未年·霜降</p>
+            <p>【九嶷山脚】灵气波动异常...</p>
+        </div>
+
+        <div class="choices" id="choices">
+            <button onclick="selectChoice(1)">探查灵气异动</button>
+            <button onclick="selectChoice(2)">返回宗门</button>
+            <button onclick="selectChoice(3)">占卜吉凶</button>
+        </div>
+    </div>
+
+    <script>
+        // 游戏状态存储
+        let gameState = {
+            karma: 50,
+            cultivation: '炼气初期',
+            relationships: {
+                '青云门': 50
+            },
+            currentEvent: 1
+        };
+
+        // 事件树
+        const eventTree = {
+            1: {
+                text: `【灵气潮涌】东南方传来异常的灵力波动，
+                    隐约可见青紫色光晕在云雾间流转...`,
+                choices: [
+                    { text: "深入探查（需神识≥5）", next: 101, check: 'perception' },
+                    { text: "布置警戒阵法", next: 102 },
+                    { text: "联系宗门长老", next: 103 }
+                ]
+            },
+            101: {
+                text: `【古修洞府】破开禁制后，发现石壁上刻有：
+                    "后来者当承吾道统..."`,
+                effect: { karma: +10 }
+            }
+        };
+
+        function renderGame(eventId) {
+            const event = eventTree[eventId];
+            document.getElementById('game-text').innerHTML = 
+                event.text.replace(/\n/g, '<br>');
+            
+            let choicesHTML = '';
+            event.choices.forEach(choice => {
+                choicesHTML += `
+                    <button onclick="handleChoice(${choice.next})">
+                        ${choice.text}
+                    </button>`;
+            });
+            document.getElementById('choices').innerHTML = choicesHTML;
+        }
+
+        function handleChoice(nextEvent) {
+            // 此处应添加属性检测和业力计算逻辑
+            renderGame(nextEvent);
+        }
+
+        // 初始化游戏
+        renderGame(1);
+    </script>
+</body>
+</html>
