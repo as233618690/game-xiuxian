@@ -121,3 +121,53 @@ button:hover {
     --bg-color: #1a2c28;        /* 深青色调 */
     --special-color: #3ec189;   /* 青绿色强调 */
 }
+
+/* 新增CSS样式 */
+.cultivation-panel {
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.progress-bar {
+    height: 15px;
+    background: rgba(0,0,0,0.3);
+    margin: 5px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, 
+        #4a752c, 
+        #6da545);
+    transition: width 0.5s ease;
+}
+
+.event-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg-color);
+    padding: 20px;
+    border: 2px solid var(--special-color);
+    z-index: 1000;
+}
+
+.event-popup button {
+    margin: 5px;
+    padding: 8px 12px;
+}
+
+/* 手机端适配 */
+@media (max-width: 480px) {
+    .attribute-panel {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    button {
+        display: block;
+        width: 100%;
+        margin: 5px 0;
+    }
+}
