@@ -4,161 +4,189 @@
     <meta charset="UTF-8">
     <title>六道轮回录</title>
     <style>
-        :root {
-            --bg-color: #2c1f1a;
-            --text-color: #e4d5c3;
-            --border-color: #66544a;
-            --special-color: #c17d3e;
+        /* 新增动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: '楷体', cursive;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+        .event-text {
+            animation: fadeIn 0.5s ease-in;
         }
-
-        .game-container {
-            border: 2px solid var(--border-color);
-            padding: 20px;
-            background: linear-gradient(to bottom right, 
-                rgba(0,0,0,0.3), 
-                rgba(50,30,20,0.5));
-            min-height: 500px;
-        }
-
-        .status-panel {
+        /* 新增属性面板 */
+        .attribute-panel {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            padding: 10px;
-            border-bottom: 1px dashed var(--border-color);
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin: 10px 0;
         }
-
-        .main-content {
-            margin: 20px 0;
-            line-height: 1.8;
-        }
-
-        .choices {
-            border-top: 1px solid var(--border-color);
-            padding-top: 15px;
-        }
-
-        button {
-            background: rgba(80, 60, 50, 0.8);
-            color: var(--text-color);
+        .attribute-item {
+            padding: 5px;
             border: 1px solid var(--border-color);
-            padding: 8px 15px;
-            margin: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        button:hover {
-            background: var(--special-color);
-            color: #2c1f1a;
-        }
-
-        .karma-bar {
-            height: 10px;
-            background: #333;
-            margin: 5px 0;
-        }
-
-        .karma-fill {
-            height: 100%;
-            background: linear-gradient(to right, 
-                #804d33, 
-                #c17d3e);
-            width: 50%;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <div class="status-panel">
-            <div>
-                <h3>因果线</h3>
-                <div class="karma-bar">
-                    <div class="karma-fill"></div>
-                </div>
-            </div>
-            <div>
-                <h3>境界</h3>
-                <p>炼气初期</p>
-            </div>
-            <div>
-                <h3>势力关系</h3>
-                <p>青云门（中立）</p>
-            </div>
+    <!-- 在status-panel后添加属性面板 -->
+    <div class="attribute-panel">
+        <div class="attribute-item">
+            <h4>神识</h4>
+            <div id="perception-value">5</div>
         </div>
-
-        <div class="main-content" id="game-text">
-            <p>【时空锚定】乙未年·霜降</p>
-            <p>【九嶷山脚】灵气波动异常...</p>
+        <div class="attribute-item">
+            <h4>根骨</h4>
+            <div id="physique-value">4</div>
         </div>
-
-        <div class="choices" id="choices">
-            <button onclick="selectChoice(1)">探查灵气异动</button>
-            <button onclick="selectChoice(2)">返回宗门</button>
-            <button onclick="selectChoice(3)">占卜吉凶</button>
+        <div class="attribute-item">
+            <h4>机缘</h4>
+            <div id="luck-value">6</div>
+        </div>
+        <div class="attribute-item">
+            <h4>灵力</h4>
+            <div id="mana-value">100/100</div>
+        </div>
+        <div class="attribute-item">
+            <h4>寿元</h4>
+            <div id="lifespan">120</div>
         </div>
     </div>
 
     <script>
-        // 游戏状态存储
+        // 扩展游戏状态
         let gameState = {
             karma: 50,
             cultivation: '炼气初期',
+            attributes: {
+                perception: 5,
+                physique: 4,
+                luck: 6,
+                mana: 100,
+                lifespan: 120
+            },
+            inventory: ['下品灵石×10'],
             relationships: {
                 '青云门': 50
             },
             currentEvent: 1
         };
 
-        // 事件树
+        // 扩展事件树
         const eventTree = {
             1: {
-                text: `【灵气潮涌】东南方传来异常的灵力波动，
+                text: `【灵气潮涌】东南方传来异常的灵力波动，<br>
                     隐约可见青紫色光晕在云雾间流转...`,
                 choices: [
-                    { text: "深入探查（需神识≥5）", next: 101, check: 'perception' },
-                    { text: "布置警戒阵法", next: 102 },
-                    { text: "联系宗门长老", next: 103 }
+                    { 
+                        text: "深入探查（需神识≥5）", 
+                        next: 101, 
+                        check: { attr: 'perception', min: 5 },
+                        cost: { mana: 20 }
+                    },
+                    { 
+                        text: "布置警戒阵法（需灵力≥50）", 
+                        next: 201,
+                        check: { attr: 'mana', min: 50 },
+                        cost: { item: '下品灵石×1' }
+                    },
+                    { 
+                        text: "联系宗门长老", 
+                        next: 301,
+                        effect: { relationships: { '青云门': +10 } }
+                    }
                 ]
             },
             101: {
-                text: `【古修洞府】破开禁制后，发现石壁上刻有：
-                    "后来者当承吾道统..."`,
-                effect: { karma: +10 }
+                text: `【古修洞府】破开禁制后，发现石壁上刻有：<br>
+                    "后来者当承吾道统..."<br>
+                    获得《玄天功》残卷`,
+                effect: { 
+                    karma: +10,
+                    inventory: ['《玄天功》残卷']
+                },
+                choices: [
+                    { text: "参悟功法", next: 102 },
+                    { text: "继续探索", next: 103 }
+                ]
+            },
+            201: {
+                text: `【阵法波动】成功布置三才阵，<br>
+                    察觉到地下有微弱灵气渗出...`,
+                effect: { 
+                    mana: -30,
+                    inventory: ['下品灵石×1'] 
+                },
+                choices: [
+                    { text: "挖掘探查", next: 202 },
+                    { text: "标记位置", next: 203 }
+                ]
+            },
+            301: {
+                text: `【长老传讯】收到青云门回信：<br>
+                    "此乃百年一遇的灵气潮，速回宗门！"`,
+                effect: { 
+                    relationships: { '青云门': +15 },
+                    karma: -5 
+                },
+                choices: [
+                    { text: "立即返回", next: 302 },
+                    { text: "抗命继续", next: 303 }
+                ]
             }
         };
 
-        function renderGame(eventId) {
-            const event = eventTree[eventId];
-            document.getElementById('game-text').innerHTML = 
-                event.text.replace(/\n/g, '<br>');
+        // 增强事件处理逻辑
+        function handleChoice(nextEvent) {
+            const currentChoices = eventTree[gameState.currentEvent].choices;
+            const selectedChoice = currentChoices.find(c => c.next === nextEvent);
             
-            let choicesHTML = '';
-            event.choices.forEach(choice => {
-                choicesHTML += `
-                    <button onclick="handleChoice(${choice.next})">
-                        ${choice.text}
-                    </button>`;
-            });
-            document.getElementById('choices').innerHTML = choicesHTML;
+            // 属性检查
+            if(selectedChoice.check) {
+                if(gameState.attributes[selectedChoice.check.attr] < selectedChoice.check.min) {
+                    alert("条件不足！");
+                    return;
+                }
+            }
+            
+            // 消耗处理
+            if(selectedChoice.cost) {
+                if(selectedChoice.cost.mana && gameState.attributes.mana < selectedChoice.cost.mana) {
+                    alert("灵力不足！");
+                    return;
+                }
+                if(selectedChoice.cost.item && !gameState.inventory.includes(selectedChoice.cost.item)) {
+                    alert("缺少必要物品！");
+                    return;
+                }
+            }
+
+            // 应用效果
+            if(selectedChoice.effect) {
+                Object.keys(selectedChoice.effect).forEach(key => {
+                    if(key === 'relationships') {
+                        Object.entries(selectedChoice.effect[key]).forEach(([faction, value]) => {
+                            gameState.relationships[faction] += value;
+                        });
+                    } else {
+                        gameState[key] = {...gameState[key], ...selectedChoice.effect[key]};
+                    }
+                });
+            }
+
+            gameState.currentEvent = nextEvent;
+            renderGame(nextEvent);
+            updateStatus();
         }
 
-        function handleChoice(nextEvent) {
-            // 此处应添加属性检测和业力计算逻辑
-            renderGame(nextEvent);
+        // 新增状态更新函数
+        function updateStatus() {
+            document.getElementById('perception-value').textContent = gameState.attributes.perception;
+            document.getElementById('mana-value').textContent = `${gameState.attributes.mana}/100`;
+            document.querySelector('.karma-fill').style.width = `${gameState.karma}%`;
         }
 
         // 初始化游戏
         renderGame(1);
+        updateStatus();
     </script>
 </body>
 </html>
